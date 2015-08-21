@@ -8,8 +8,6 @@
 
 #import "PDTSimpleCalendarViewCell.h"
 
-const CGFloat PDTSimpleCalendarCircleSize = 32.0f;
-
 @interface PDTSimpleCalendarViewCell ()
 
 @property (nonatomic, strong) UILabel *dayLabel;
@@ -77,6 +75,9 @@ const CGFloat PDTSimpleCalendarCircleSize = 32.0f;
         [self.dayLabel setTextAlignment:NSTextAlignmentCenter];
         [self.contentView addSubview:self.dayLabel];
 
+        CGFloat PDTSimpleCalendarCircleSize = self.bounds.size.width - 4;
+
+
         //Add the Constraints
         [self.dayLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
         [self.dayLabel setBackgroundColor:[UIColor clearColor]];
@@ -102,6 +103,8 @@ const CGFloat PDTSimpleCalendarCircleSize = 32.0f;
         _date = date;
         day = [PDTSimpleCalendarViewCell formatDate:date withCalendar:calendar];
         accessibilityDay = [PDTSimpleCalendarViewCell formatAccessibilityDate:date withCalendar:calendar];
+        self.dayLabel.layer.borderWidth = 2.0;
+        self.dayLabel.layer.borderColor = [self textDefaultColor].CGColor;
     }
     self.dayLabel.text = day;
     self.dayLabel.accessibilityLabel = accessibilityDay;
