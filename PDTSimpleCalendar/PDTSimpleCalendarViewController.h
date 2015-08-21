@@ -45,6 +45,14 @@
  */
 @property (nonatomic, strong) NSDate *selectedDate;
 
+
+/**
+ *  Selected date range end displayed by the calendar.
+ *  Changing this value will not cause the calendar to scroll to this date.
+ *  You need to manually call scrollToSelectedDate:(BOOL)animated if you want this behavior.
+ */
+@property (nonatomic, strong) NSDate *secondSelectedDate;
+
 /** @name Customizing Appearance */
 
 /**
@@ -125,6 +133,15 @@
  *  @param date       the date being selected (Midnight GMT).
  */
 - (void)simpleCalendarViewController:(PDTSimpleCalendarViewController *)controller didSelectDate:(NSDate *)date;
+
+/**
+ *  Tells the delegate that a second date was selected by the user.
+ *
+ *  @param controller the calendarView Controller
+ *  @param date       the date being selected (Midnight GMT).
+ */
+
+- (void)simpleCalendarViewController:(PDTSimpleCalendarViewController *)controller didSelectSecondDate:(NSDate *)date;
 
 /** @name Color Customization */
 

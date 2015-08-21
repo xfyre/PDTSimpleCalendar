@@ -25,6 +25,7 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
 @property (nonatomic, strong) NSDateFormatter *headerDateFormatter; //Will be used to format date in header view and on scroll.
 
 @property (nonatomic, strong) PDTSimpleCalendarViewWeekdayHeader *weekdayHeader;
+@property (nonatomic, strong) NSMutableArray *selectedIndexPaths;
 
 // First and last date of the months based on the public properties first & lastDate
 @property (nonatomic) NSDate *firstDateMonth;
@@ -191,6 +192,14 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
 
 - (void)setSelectedDate:(NSDate *)newSelectedDate
 {
+    for (NSIndexPath *indexPath in _selectedIndexPaths)
+        [self.collectionView cellForItemAtIndexPath:indexPath].selected = NO;
+
+    if (_selectedIndexPaths == nil)
+        _selectedIndexPaths = [NSMutableArray array];
+    else
+        [_selectedIndexPaths removeAllObjects];
+
     //if newSelectedDate is nil, unselect the current selected cell
     if (!newSelectedDate) {
         [[self cellForItemAtDate:_selectedDate] setSelected:NO];
@@ -218,6 +227,56 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
     //Notify the delegate
     if ([self.delegate respondsToSelector:@selector(simpleCalendarViewController:didSelectDate:)]) {
         [self.delegate simpleCalendarViewController:self didSelectDate:self.selectedDate];
+    }
+}
+
+- (void)setSecondSelectedDate:(NSDate *)newSelectedDate
+{
+    if (!newSelectedDate) {
+        [[self cellForItemAtDate:_secondSelectedDate] setSelected:NO];
+        _secondSelectedDate = newSelectedDate;
+
+        return;
+    }
+
+    //Test if selectedDate between first & last date
+    NSDate *startOfDay = [self clampDate:newSelectedDate toComponents:kCalendarUnitYMD];
+    if (([startOfDay compare:self.firstDateMonth] == NSOrderedAscending) || ([startOfDay compare:self.lastDateMonth] == NSOrderedDescending)) {
+        //the newSelectedDate is not between first & last date of the calendar, do nothing.
+        return;
+    }
+
+    [[self cellForItemAtDate:_secondSelectedDate] setSelected:NO];
+    [[self cellForItemAtDate:startOfDay] setSelected:YES];
+
+    _secondSelectedDate = startOfDay;
+
+    NSIndexPath *indexPath1 = [self indexPathForCellAtDate:_selectedDate];
+    NSIndexPath *indexPath2 = [self indexPathForCellAtDate:_secondSelectedDate];
+//    NSLog(@"indexPath1=%@, indexPath2=%@", indexPath1, indexPath2);
+    for (int i = indexPath1.section; i <= indexPath2.section; i++) {
+        NSUInteger minRow = i == indexPath1.section ? indexPath1.row : 0;
+        NSUInteger maxRow = i < indexPath2.section ? [self.collectionView numberOfItemsInSection:i] - 1 : indexPath2.row;
+//        NSLog(@"minrow=%d, maxrow=%d", minRow, maxRow);
+        for (int j = minRow; j <= maxRow; j++) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:j inSection:i];
+
+            NSDate *firstOfMonth = [self firstOfMonthForSection:indexPath.section];
+            NSDate *cellDate = [self dateForCellAtIndexPath:indexPath];
+
+            NSDateComponents *cellDateComponents = [self.calendar components:kCalendarUnitYMD fromDate:cellDate];
+            NSDateComponents *firstOfMonthsComponents = [self.calendar components:kCalendarUnitYMD fromDate:firstOfMonth];
+
+            if (cellDateComponents.month == firstOfMonthsComponents.month) {
+                [self.collectionView cellForItemAtIndexPath:indexPath].selected = YES;
+                [_selectedIndexPaths addObject:indexPath];
+            }
+        }
+    }
+
+    //Notify the delegate
+    if ([self.delegate respondsToSelector:@selector(simpleCalendarViewController:didSelectSecondDate:)]) {
+        [self.delegate simpleCalendarViewController:self didSelectSecondDate:self.selectedDate];
     }
 }
 
@@ -405,7 +464,15 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    self.selectedDate = [self dateForCellAtIndexPath:indexPath];
+    if (self.selectedDate && self.secondSelectedDate) {
+        self.selectedDate = [self dateForCellAtIndexPath:indexPath];
+        self.secondSelectedDate = nil;
+    } else if (self.selectedDate) {
+        self.secondSelectedDate = [self dateForCellAtIndexPath:indexPath];
+    } else {
+        self.selectedDate = [self dateForCellAtIndexPath:indexPath];
+        self.secondSelectedDate = nil;
+    }
 }
 
 
