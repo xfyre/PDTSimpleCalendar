@@ -37,4 +37,23 @@ const CGFloat PDTSimpleCalendarFlowLayoutHeaderHeight = 30.0f;
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.minimumInteritemSpacing = PDTSimpleCalendarFlowLayoutMinInterItemSpacing;
+        self.minimumLineSpacing = PDTSimpleCalendarFlowLayoutMinLineSpacing;
+        self.scrollDirection = UICollectionViewScrollDirectionVertical;
+        self.sectionInset = UIEdgeInsetsMake(PDTSimpleCalendarFlowLayoutInsetTop,
+                                             PDTSimpleCalendarFlowLayoutInsetLeft,
+                                             PDTSimpleCalendarFlowLayoutInsetBottom,
+                                             PDTSimpleCalendarFlowLayoutInsetRight);
+        self.headerReferenceSize = CGSizeMake(0, PDTSimpleCalendarFlowLayoutHeaderHeight);
+
+        //Note: Item Size is defined using the delegate to take into account the width of the view and calculate size dynamically
+    }
+
+    return self;
+}
+
 @end

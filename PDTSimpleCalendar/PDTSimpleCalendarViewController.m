@@ -62,7 +62,7 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
 {
     //Force the creation of the view with the pre-defined Flow Layout.
     //Still possible to define a custom Flow Layout, if needed by using initWithCollectionViewLayout:
-    self = [super initWithCollectionViewLayout:[[PDTSimpleCalendarViewFlowLayout alloc] init]];
+    self = [super initWithCoder:coder];
     if (self) {
         // Custom initialization
         [self simpleCalendarCommonInit];
