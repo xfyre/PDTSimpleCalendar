@@ -276,7 +276,7 @@ static const NSCalendarUnit kCalendarUnitYMD = NSCalendarUnitYear | NSCalendarUn
 
     //Notify the delegate
     if ([self.delegate respondsToSelector:@selector(simpleCalendarViewController:didSelectSecondDate:)]) {
-        [self.delegate simpleCalendarViewController:self didSelectSecondDate:self.selectedDate];
+        [self.delegate simpleCalendarViewController:self didSelectSecondDate:self.secondSelectedDate];
     }
 }
 
